@@ -13,7 +13,7 @@
         <h1 class="display-4">Wybrałeś: ${last.getElement()}</h1>
         <h2>Element ${last.getElement()} wynosi: ${last.getResult()}</h2>
         <hr class="my-4">
-        <p>.</p>
+        <a class="btn btn-primary" href="index.html">Wybierz nowy element</a>
         <table class="table table-striped">
             <thead>
             <tr>

@@ -25,7 +25,8 @@ import java.util.Map;
 @WebServlet(urlPatterns = "/fibonacci")
 public class FibonacciServlet extends HttpServlet {
 
-    private static final String TEMPLATE_NAME = "fibonacci";
+    private static final String TEMPLATE_OK = "fibonacci";
+    private static final String TEMPLATE_FAILED = "failed";
     private static final Logger LOG = LoggerFactory.getLogger(FibonacciServlet.class);
 
     @Inject
@@ -38,26 +39,47 @@ public class FibonacciServlet extends HttpServlet {
 
         resp.addHeader("Content-Type", "text/html; charset=utf-8");
         PrintWriter out = resp.getWriter();
-
-        String numberStr = req.getParameter("number");
-        long element = Long.parseLong(numberStr);
-
-        List<FibonacciElement> fibonacciElementList = fibonacciCalculate.generateFibonacciElements(element);
-        int lastElementFibonacciElementList = fibonacciElementList.size() -1;
-
-
-
         Map<String, Object> model = new HashMap<>();
-        model.put("fibo", fibonacciElementList);
-        model.put("last", fibonacciElementList.get(lastElementFibonacciElementList));
+        String numberStr = req.getParameter("number");
 
-        Template template = templateProvider.getTemplate(getServletContext(), TEMPLATE_NAME);
 
         try {
-            template.process(model, out);
-            LOG.info("ok");
-        } catch (TemplateException e) {
-            LOG.error("Failed");
+            long element = Long.parseLong(numberStr);
+
+            if (element < 0) {
+                Template template = templateProvider.getTemplate(getServletContext(), TEMPLATE_FAILED);
+
+                try {
+                    template.process(model, out);
+                    LOG.info("okgf");
+                } catch (TemplateException e) {
+                    LOG.error("Failed");
+                }
+
+            } else {
+                List<FibonacciElement> fibonacciElementList = fibonacciCalculate.generateFibonacciElements(element);
+                int lastElementFibonacciElementList = fibonacciElementList.size() - 1;
+                model.put("fibo", fibonacciElementList);
+                model.put("last", fibonacciElementList.get(lastElementFibonacciElementList));
+
+                Template template = templateProvider.getTemplate(getServletContext(), TEMPLATE_OK);
+
+                try {
+                    template.process(model, out);
+                    LOG.info("ok");
+                } catch (TemplateException e) {
+                    LOG.error("Failed");
+                }
+            }
+
+
+        } catch (NumberFormatException e) {
+            Template template = templateProvider.getTemplate(getServletContext(), TEMPLATE_FAILED);
+            try {
+                template.process(model, out);
+            } catch (TemplateException e1) {
+                e1.printStackTrace();
+            }
         }
 
 
